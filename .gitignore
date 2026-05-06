@@ -1,0 +1,16 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+# .env.example is intentionally committed — it's a safe template with no real secrets
+
+# Node
+node_modules/
+dist/
+.env.local
+
+# Misc
+.DS_Store
+*.log
