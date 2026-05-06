@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import upload, search, chat
+from backend.routers import upload, search, chat
 
 app = FastAPI(
     title="Multimodal Second Brain API",
