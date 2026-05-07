@@ -6,7 +6,16 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_anon_key: str
     supabase_service_role_key: str
-    google_api_key: str
+
+    # Google AI Studio key — still required for Gemini chat streaming
+    # Also used for embeddings when EMBEDDING_PROVIDER=google
+    google_api_key: str = ""
+
+    # Nomic API key — required when EMBEDDING_PROVIDER=nomic
+    nomic_api_key: str = ""
+
+    # "nomic" | "google"
+    embedding_provider: str = "nomic"
 
     class Config:
         env_file = ".env"

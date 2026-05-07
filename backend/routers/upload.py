@@ -1,14 +1,15 @@
 import uuid
+import logging
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException
 from ..core.database import supabase
 from ..models.schemas import UploadResponse, DocumentStatusResponse
 from ..services.storage import upload_file
-from ..services.gemini import describe_image
-from ..services.embedding import embed_document
+from ..services.embedding import embed_document, embed_image
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# MIME types we handle
 IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 PDF_TYPE = "application/pdf"
 
@@ -19,37 +20,37 @@ async def _process_document(
     doc_id: str,
     file_bytes: bytes,
     file_type: str,
+    mime_type: str,
     file_url: str,
     filename: str,
 ) -> None:
     """
-    Async background task:
-      image → Gemini describe → text-embedding-004 embed → pgvector store
-      text  → text-embedding-004 embed → pgvector store (future)
+    Async background task.
+
+    image → embed_image() → pgvector store
+      Google provider: Gemini describes → text-embedding-004 embeds description
+      Nomic provider:  nomic-embed-vision-v1.5 embeds image directly
+
+    text  → embed_document() → pgvector store
     """
     try:
         supabase.table("documents").update({"status": "processing"}).eq("id", doc_id).execute()
 
         if file_type == "image":
-            # Step 1: Gemini generates a rich semantic description
-            description = await describe_image(file_bytes)
+            # embed_image returns (vector, description_or_None)
+            embedding, description = await embed_image(file_bytes, mime_type)
 
-            # Step 2: Embed the description with task_type=retrieval_document
-            embedding = await embed_document(description)
-
-            # Step 3: Insert chunk row into pgvector table
             supabase.table("chunks").insert({
                 "doc_id": doc_id,
                 "content_type": "image",
                 "image_url": file_url,
-                "image_description": description,
-                "text": description,           # also stored as text for hybrid search
+                "image_description": description,       # None for Nomic, text for Google
+                "text": description,                    # None for Nomic, text for Google
                 "embedding": embedding,
                 "metadata": {"filename": filename},
             }).execute()
 
         elif file_type == "text":
-            # Plain text: embed directly (no description step needed)
             text_content = file_bytes.decode("utf-8", errors="replace")
             embedding = await embed_document(text_content)
 
@@ -61,13 +62,11 @@ async def _process_document(
                 "metadata": {"filename": filename},
             }).execute()
 
-        # Mark document as ready
         supabase.table("documents").update({"status": "ready"}).eq("id", doc_id).execute()
 
     except Exception as exc:
         supabase.table("documents").update({"status": "failed"}).eq("id", doc_id).execute()
-        # Re-raise so FastAPI background task logs the traceback
-        raise exc
+        logger.exception("Pipeline failed for doc %s: %s", doc_id, exc)
 
 
 # ── Routes ─────────────────────────────────────────────────────────────────────
@@ -77,18 +76,11 @@ async def upload_document(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
 ) -> UploadResponse:
-    """
-    Accept a file upload, store it in Supabase Storage, and kick off the
-    background pipeline (describe → embed → pgvector).
-
-    Returns immediately with the document ID so the frontend can poll /status.
-    """
     content_type = file.content_type or "application/octet-stream"
 
     if content_type in IMAGE_TYPES:
         file_type = "image"
     elif content_type == PDF_TYPE:
-        # PDF support: planned for Phase 3+ (chunking + OCR)
         raise HTTPException(status_code=415, detail="PDF support coming soon.")
     else:
         file_type = "text"
@@ -96,10 +88,8 @@ async def upload_document(
     file_bytes = await file.read()
     doc_id = str(uuid.uuid4())
 
-    # Upload raw file to Supabase Storage first
     file_url = await upload_file(file_bytes, file.filename or "upload", content_type)
 
-    # Create document record (status = 'processing')
     supabase.table("documents").insert({
         "id": doc_id,
         "title": file.filename or "Untitled",
@@ -108,12 +98,12 @@ async def upload_document(
         "status": "processing",
     }).execute()
 
-    # Queue the embedding pipeline as a background task
     background_tasks.add_task(
         _process_document,
         doc_id,
         file_bytes,
         file_type,
+        content_type,       # mime_type passed through for embed_image
         file_url,
         file.filename or "upload",
     )
@@ -127,7 +117,6 @@ async def upload_document(
 
 @router.get("/upload/{doc_id}/status", response_model=DocumentStatusResponse)
 async def get_document_status(doc_id: str) -> DocumentStatusResponse:
-    """Poll this endpoint until status == 'ready' or 'failed'."""
     result = (
         supabase.table("documents")
         .select("id, status, title")
@@ -142,7 +131,6 @@ async def get_document_status(doc_id: str) -> DocumentStatusResponse:
 
 @router.get("/documents")
 async def list_documents():
-    """Return all documents ordered by creation time (newest first)."""
     result = (
         supabase.table("documents")
         .select("id, title, file_type, file_url, status, created_at")

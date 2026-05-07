@@ -15,6 +15,7 @@ export function CommandBar({
   placeholder = 'Ask anything about your notes…',
 }: CommandBarProps) {
   const [value, setValue] = useState('')
+  const [isFocused, setIsFocused] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const canSend = value.trim().length > 0 && !isStreaming
@@ -23,7 +24,6 @@ export function CommandBar({
     if (!canSend) return
     onSend(value.trim())
     setValue('')
-    // Reset textarea height
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
   }
 
@@ -44,17 +44,24 @@ export function CommandBar({
   return (
     <motion.div
       initial={{ y: 40, opacity: 0 }}
-      animate={{ y: 0,  opacity: 1 }}
+      animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.1 }}
       className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-30"
     >
-      <div
+      <motion.div
+        animate={{
+          boxShadow: isFocused
+            ? '0 0 0 1.5px rgba(99,102,241,0.5), 0 16px 48px rgba(0,0,0,0.5)'
+            : isStreaming
+            ? '0 0 0 1px rgba(99,102,241,0.3), 0 8px 32px rgba(0,0,0,0.4)'
+            : '0 8px 32px rgba(0,0,0,0.4)',
+        }}
+        transition={{ duration: 0.2 }}
         className={cn(
           'flex items-end gap-3 px-4 py-3 rounded-2xl',
-          'bg-white/8 backdrop-blur-glass-lg border border-white/10',
-          'shadow-[0_8px_32px_rgba(0,0,0,0.4)]',
-          'transition-all duration-200',
-          isStreaming && 'border-accent/30'
+          'bg-white/8 backdrop-blur-glass-lg border',
+          'transition-colors duration-200',
+          isFocused || isStreaming ? 'border-accent/30' : 'border-white/10',
         )}
       >
         {/* Attachment button */}
@@ -72,6 +79,8 @@ export function CommandBar({
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           onInput={handleInput}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
           rows={1}
           className={cn(
@@ -88,8 +97,8 @@ export function CommandBar({
             <motion.div
               key="loading"
               initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1,   opacity: 1 }}
-              exit={{    scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
               className="shrink-0 mb-0.5 text-accent"
             >
               <Loader2 size={20} className="animate-spin" />
@@ -98,16 +107,16 @@ export function CommandBar({
             <motion.button
               key="send"
               initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1,   opacity: 1 }}
-              exit={{    scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
               whileHover={canSend ? { scale: 1.1 } : {}}
-              whileTap={canSend  ? { scale: 0.9 } : {}}
+              whileTap={canSend ? { scale: 0.9 } : {}}
               onClick={handleSend}
               disabled={!canSend}
               className={cn(
                 'shrink-0 mb-0.5 w-7 h-7 rounded-lg flex items-center justify-center transition-all',
                 canSend
-                  ? 'bg-accent text-white hover:bg-accent-hover'
+                  ? 'bg-accent text-white hover:bg-accent-hover shadow-[0_2px_8px_rgba(99,102,241,0.4)]'
                   : 'bg-white/5 text-muted cursor-not-allowed'
               )}
             >
@@ -115,7 +124,7 @@ export function CommandBar({
             </motion.button>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
 
       <p className="mt-1.5 text-center text-[11px] text-muted">
         Enter to send · Shift+Enter for new line

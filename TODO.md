@@ -1,10 +1,10 @@
 # TODO — Multimodal Second Brain
 
 ## Current Version
-v0.4 — Phase 3 complete. Backend is fully operational with deps installed, servers running, and all endpoints verified.
+v0.4 — Phase 3 backend complete. Backend server running, all endpoints verified. Frontend setup pending.
 
 ## In Progress
-- [ ] Frontend integration and UI polish (Phase 6–9)
+- [ ] Phase 3 frontend: Install frontend deps and boot dev server
 
 ## Done
 - [x] Finalized tech stack and architecture — 2026-05-05
@@ -17,11 +17,19 @@ v0.4 — Phase 3 complete. Backend is fully operational with deps installed, ser
 - [x] Phase 3: Create "documents" Storage bucket in Supabase dashboard — 2026-05-05
 - [x] Phase 3: Run 001_initial_schema.sql in Supabase SQL Editor — 2026-05-05
 - [x] Phase 3: Install backend deps (pip install -r requirements.txt) — 2026-05-05
-- [x] Phase 3: Install frontend deps (npm install inside /frontend) — 2026-05-05
-- [x] Phase 3: Boot servers (uvicorn + npm run dev) — 2026-05-05
+- [x] Phase 3: Boot backend server (uvicorn backend.main:app --reload) — 2026-05-05
 - [x] Phase 3: Test upload pipeline end-to-end via Postman — 2026-05-05
 - [x] Phase 3: Test /api/search with a real query — 2026-05-05
-- [x] Phase 3: Test /api/chat/stream SSE in browser — 2026-05-05
+- [x] Phase 3: Test /api/chat/stream SSE — 2026-05-05
+
+## Backlog
+
+### Phase 3 (Frontend — remaining)
+- [ ] Install frontend deps: npm install inside /frontend — priority: high
+- [ ] Boot frontend dev server: npm run dev — priority: high
+- [ ] Test upload pipeline via UI — priority: high
+- [ ] Test /api/search via UI — priority: high
+- [ ] Test /api/chat/stream SSE in browser — priority: high
 
 ### Phase 6–9 (UI Polish)
 - [ ] Add search view component (SearchResults.tsx) — priority: medium
