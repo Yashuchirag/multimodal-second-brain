@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from ..models.schemas import ChatRequest, Citation
 from ..services.search import vector_search
-from ..services.gemini import generate_stream
+from ..services.llm import generate_stream
 from ..core.database import supabase
 
 router = APIRouter()

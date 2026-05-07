@@ -7,15 +7,21 @@ class Settings(BaseSettings):
     supabase_anon_key: str
     supabase_service_role_key: str
 
-    # Google AI Studio key — still required for Gemini chat streaming
-    # Also used for embeddings when EMBEDDING_PROVIDER=google
-    google_api_key: str = ""
-
-    # Nomic API key — required when EMBEDDING_PROVIDER=nomic
+    # ── Embedding provider ─────────────────────────────────────────────────────
+    # "nomic"  → nomic-embed-text-v1.5 + nomic-embed-vision-v1.5
+    # "google" → text-embedding-004 + Gemini image description
+    embedding_provider: str = "nomic"
     nomic_api_key: str = ""
 
-    # "nomic" | "google"
-    embedding_provider: str = "nomic"
+    # ── LLM / chat provider ────────────────────────────────────────────────────
+    # "groq"   → llama-3.3-70b-versatile via Groq (free tier)
+    # "gemini" → Gemini 2.0 Flash
+    llm_provider: str = "groq"
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
+
+    # ── Google (only needed when a *_provider = "google" or "gemini") ──────────
+    google_api_key: str = ""
 
     class Config:
         env_file = ".env"
