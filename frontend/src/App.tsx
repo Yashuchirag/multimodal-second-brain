@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { BentoGrid } from '@/components/dashboard/BentoGrid'
 import { ChatComponent } from '@/components/chat/ChatComponent'
 import { UploadZone } from '@/components/upload/UploadZone'
+import { SearchView } from '@/components/search/SearchView'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,11 +41,7 @@ export default function App() {
             </div>
           )}
           {activeView === 'upload' && <UploadZone />}
-          {activeView === 'search' && (
-            <div className="p-6">
-              <p className="text-secondary text-sm">Search view — coming in Phase 8.</p>
-            </div>
-          )}
+          {activeView === 'search' && <SearchView />}
         </main>
       </div>
     </QueryClientProvider>

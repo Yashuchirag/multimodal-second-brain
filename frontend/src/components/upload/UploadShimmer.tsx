@@ -26,7 +26,7 @@ export function UploadShimmer() {
       </div>
 
       <p className="relative z-10 mt-3 text-xs text-muted">
-        Gemini is analysing your file…
+        Analysing and embedding your file…
       </p>
     </div>
   )

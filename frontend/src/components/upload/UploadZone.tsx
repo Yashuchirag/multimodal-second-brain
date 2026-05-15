@@ -7,8 +7,9 @@ import { UploadShimmerRow } from './UploadShimmer'
 import { cn } from '@/lib/utils'
 
 const ACCEPTED = {
-  'image/*':                   ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
-  'text/plain':                ['.txt', '.md'],
+  'image/*':        ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
+  'text/plain':     ['.txt', '.md'],
+  'application/pdf': ['.pdf'],
 }
 
 export function UploadZone() {
@@ -62,7 +63,7 @@ export function UploadZone() {
             {isDragActive ? 'Drop to upload' : 'Drag & drop files here'}
           </p>
           <p className="text-xs text-muted mt-1">
-            Images (JPG, PNG, GIF, WebP) · Text (TXT, MD)
+            Images (JPG, PNG, WebP) · PDF · Text (TXT, MD)
           </p>
         </div>
 

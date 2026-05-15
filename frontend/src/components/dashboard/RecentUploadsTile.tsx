@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-import { FileImage, FileText, Clock } from 'lucide-react'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { FileImage, FileText, Clock, Trash2 } from 'lucide-react'
 import { BentoCard } from './BentoCard'
 import { Document } from '@/types'
 import { formatDate, truncate } from '@/lib/utils'
@@ -21,11 +22,28 @@ function StatusDot({ status }: { status: Document['status'] }) {
 }
 
 export function RecentUploadsTile() {
+  const queryClient = useQueryClient()
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
   const { data, isLoading } = useQuery<{ documents: Document[] }>({
     queryKey: ['documents'],
     queryFn: () => fetch(`${API_URL}/api/documents`).then((r) => r.json()),
-    refetchInterval: 5000,    // poll every 5s to pick up newly processed docs
+    refetchInterval: 5000,
   })
+
+  const deleteMutation = useMutation({
+    mutationFn: (docId: string) =>
+      fetch(`${API_URL}/api/documents/${docId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+    },
+    onSettled: () => setDeletingId(null),
+  })
+
+  const handleDelete = (docId: string) => {
+    setDeletingId(docId)
+    deleteMutation.mutate(docId)
+  }
 
   const docs = data?.documents?.slice(0, 6) ?? []
 
@@ -64,7 +82,8 @@ export function RecentUploadsTile() {
             {docs.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/3 hover:bg-white/5 transition-colors"
+                className="group flex items-center gap-3 px-3 py-2 rounded-xl
+                           bg-white/3 hover:bg-white/5 transition-colors"
               >
                 {doc.file_type === 'image'
                   ? <FileImage size={15} className="text-accent shrink-0" />
@@ -74,6 +93,22 @@ export function RecentUploadsTile() {
                   <p className="text-xs text-primary truncate">{truncate(doc.title, 30)}</p>
                   <p className="text-[11px] text-muted">{formatDate(doc.created_at)}</p>
                 </div>
+
+                {/* Delete button — visible on row hover */}
+                <button
+                  onClick={() => handleDelete(doc.id)}
+                  disabled={deletingId === doc.id}
+                  title="Delete"
+                  className={cn(
+                    'shrink-0 p-1 rounded-lg transition-all duration-150',
+                    'opacity-0 group-hover:opacity-100',
+                    'text-muted hover:text-red-400 hover:bg-red-400/10',
+                    deletingId === doc.id && 'opacity-50 cursor-not-allowed',
+                  )}
+                >
+                  <Trash2 size={13} />
+                </button>
+
                 <StatusDot status={doc.status} />
               </div>
             ))}

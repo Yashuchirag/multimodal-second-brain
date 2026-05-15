@@ -51,7 +51,7 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             # ── Step 2: Emit citations before streaming starts ─────────────────
             yield f"data: {json.dumps({'type': 'citations', 'data': [c.model_dump() for c in citations]})}\n\n"
 
-            # ── Step 3: Stream Gemini response token by token ──────────────────
+            # ── Step 3: Stream Groq response token by token ───────────────────
             full_content = ""
 
             async for event in generate_stream(request.message, context):

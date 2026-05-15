@@ -1,39 +1,37 @@
 # TODO — Multimodal Second Brain
 
 ## Current Version
-v0.4 — Phase 3 backend complete. Backend server running, all endpoints verified. Frontend setup pending.
+v0.6 — Full stack running. All frontend views implemented (dashboard, chat, upload, search). Backend live on Groq + Nomic. Ready for end-to-end testing.
 
 ## In Progress
-- [ ] Phase 3 frontend: Install frontend deps and boot dev server
+- [ ] End-to-end test: upload → embed → search → chat via UI
 
 ## Done
 - [x] Finalized tech stack and architecture — 2026-05-05
-- [x] Chose embedding strategy: Gemini describe → text-embedding-004 — 2026-05-05
 - [x] Created CLAUDE.md, PROJECT_INSTRUCTIONS.md, TODO.md — 2026-05-05
 - [x] Phase 1: Backend scaffold (main.py, routers, services, models, core) — 2026-05-05
-- [x] Phase 1: Frontend scaffold (Vite+TS, components, hooks, stores, types) — 2026-05-05
-- [x] Phase 2: Database migration SQL + match_chunks RPC — 2026-05-05
-- [x] Phase 3: Fill .env files with real Supabase + Google AI Studio credentials — 2026-05-05
-- [x] Phase 3: Create "documents" Storage bucket in Supabase dashboard — 2026-05-05
-- [x] Phase 3: Run 001_initial_schema.sql in Supabase SQL Editor — 2026-05-05
-- [x] Phase 3: Install backend deps (pip install -r requirements.txt) — 2026-05-05
-- [x] Phase 3: Boot backend server (uvicorn backend.main:app --reload) — 2026-05-05
-- [x] Phase 3: Test upload pipeline end-to-end via Postman — 2026-05-05
-- [x] Phase 3: Test /api/search with a real query — 2026-05-05
-- [x] Phase 3: Test /api/chat/stream SSE — 2026-05-05
+- [x] Phase 1: Frontend scaffold (Vite+TS, all components, hooks, stores, types) — 2026-05-05
+- [x] Phase 2: Database migrations + match_chunks RPC + ivfflat index — 2026-05-05
+- [x] Phase 2: Supabase Storage "documents" bucket created — 2026-05-05
+- [x] Phase 3: Backend deps installed, server running, all endpoints tested — 2026-05-05
+- [x] Stack migration: Groq (LLM) + Nomic (embeddings), Gemini/Google removed — 2026-05-14
+- [x] Frontend: all chat components implemented (ChatComponent, ChatBubble, StreamingText, ReasoningBlock, SourceBubble, CommandBar) — 2026-05-14
+- [x] Frontend: upload components implemented (UploadZone, UploadShimmer) — 2026-05-14
+- [x] Frontend: dashboard implemented (BentoGrid, BentoCard, InsightsTile, RecentUploadsTile) — 2026-05-14
+- [x] Frontend: Sidebar, useChat, useUpload, useSearch, all stores + types — 2026-05-14
+- [x] Frontend: SearchView component built and wired into App.tsx — 2026-05-14
+- [x] Frontend + backend running, UI loads correctly — 2026-05-14
 
 ## Backlog
 
-### Phase 3 (Frontend — remaining)
-- [ ] Install frontend deps: npm install inside /frontend — priority: high
-- [ ] Boot frontend dev server: npm run dev — priority: high
-- [ ] Test upload pipeline via UI — priority: high
-- [ ] Test /api/search via UI — priority: high
-- [ ] Test /api/chat/stream SSE in browser — priority: high
+### Testing & Polish (priority: high)
+- [ ] End-to-end test: upload an image → confirm status = ready — priority: high
+- [ ] End-to-end test: send a chat message → verify streaming + citations — priority: high
+- [ ] End-to-end test: semantic search → verify results match upload — priority: high
+- [ ] Confirm RecentUploadsTile updates after upload — priority: high
 
-### Phase 6–9 (UI Polish)
-- [ ] Add search view component (SearchResults.tsx) — priority: medium
+### Improvements (priority: medium)
+- [ ] Add PDF text extraction to upload pipeline — priority: medium
 - [ ] Add error boundaries to all views — priority: medium
-- [ ] Add PDF support to upload pipeline — priority: low
-- [ ] Gemini thinking model integration for reasoning block — priority: low
+- [ ] Add clear-chat button to ChatComponent — priority: low
 - [ ] Supabase Auth (post-MVP) — priority: low

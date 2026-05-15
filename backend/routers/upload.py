@@ -3,8 +3,9 @@ import logging
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException
 from ..core.database import supabase
 from ..models.schemas import UploadResponse, DocumentStatusResponse
-from ..services.storage import upload_file
+from ..services.storage import upload_file, delete_file
 from ..services.embedding import embed_document, embed_image
+from ..services.pdf import extract_pages_async
 
 logger = logging.getLogger(__name__)
 
@@ -27,25 +28,21 @@ async def _process_document(
     """
     Async background task.
 
-    image → embed_image() → pgvector store
-      Google provider: Gemini describes → text-embedding-004 embeds description
-      Nomic provider:  nomic-embed-vision-v1.5 embeds image directly
-
-    text  → embed_document() → pgvector store
+    image → nomic-embed-vision-v1.5 → pgvector store
+    text  → nomic-embed-text-v1.5   → pgvector store
+    pdf   → extract pages → nomic-embed-text-v1.5 per page → pgvector store
     """
     try:
         supabase.table("documents").update({"status": "processing"}).eq("id", doc_id).execute()
 
         if file_type == "image":
-            # embed_image returns (vector, description_or_None)
             embedding, description = await embed_image(file_bytes, mime_type)
-
             supabase.table("chunks").insert({
                 "doc_id": doc_id,
                 "content_type": "image",
                 "image_url": file_url,
-                "image_description": description,       # None for Nomic, text for Google
-                "text": description,                    # None for Nomic, text for Google
+                "image_description": description,
+                "text": description,
                 "embedding": embedding,
                 "metadata": {"filename": filename},
             }).execute()
@@ -53,7 +50,6 @@ async def _process_document(
         elif file_type == "text":
             text_content = file_bytes.decode("utf-8", errors="replace")
             embedding = await embed_document(text_content)
-
             supabase.table("chunks").insert({
                 "doc_id": doc_id,
                 "content_type": "text",
@@ -61,6 +57,31 @@ async def _process_document(
                 "embedding": embedding,
                 "metadata": {"filename": filename},
             }).execute()
+
+        elif file_type == "pdf":
+            pages = await extract_pages_async(file_bytes)
+
+            if not pages:
+                # Scanned / image-only PDF — no extractable text
+                raise ValueError(
+                    "No extractable text found. This PDF may be image-only (scanned). "
+                    "Try uploading individual pages as images instead."
+                )
+
+            total = len(pages)
+            for page_num, text in pages:
+                embedding = await embed_document(text)
+                supabase.table("chunks").insert({
+                    "doc_id": doc_id,
+                    "content_type": "text",
+                    "text": text,
+                    "embedding": embedding,
+                    "metadata": {
+                        "filename": filename,
+                        "page": page_num,
+                        "total_pages": total,
+                    },
+                }).execute()
 
         supabase.table("documents").update({"status": "ready"}).eq("id", doc_id).execute()
 
@@ -81,7 +102,7 @@ async def upload_document(
     if content_type in IMAGE_TYPES:
         file_type = "image"
     elif content_type == PDF_TYPE:
-        raise HTTPException(status_code=415, detail="PDF support coming soon.")
+        file_type = "pdf"
     else:
         file_type = "text"
 
@@ -127,6 +148,29 @@ async def get_document_status(doc_id: str) -> DocumentStatusResponse:
         raise HTTPException(status_code=404, detail="Document not found.")
     row = result.data[0]
     return DocumentStatusResponse(id=row["id"], title=row["title"], status=row["status"])
+
+
+@router.delete("/documents/{doc_id}", status_code=204)
+async def delete_document(doc_id: str):
+    result = (
+        supabase.table("documents")
+        .select("file_url")
+        .eq("id", doc_id)
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    file_url = result.data[0]["file_url"]
+
+    # Delete from Storage (best-effort — don't fail if file already gone)
+    try:
+        await delete_file(file_url)
+    except Exception:
+        logger.warning("Storage delete failed for doc %s, continuing.", doc_id)
+
+    # Delete from DB — chunks cascade automatically
+    supabase.table("documents").delete().eq("id", doc_id).execute()
 
 
 @router.get("/documents")

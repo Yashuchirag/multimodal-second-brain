@@ -47,8 +47,8 @@ export function InsightsTile() {
               Your second brain is ready.
             </h2>
             <p className="text-sm text-secondary leading-relaxed max-w-lg mt-2">
-              Upload images, notes, or documents and ask anything. Gemini will
-              analyze and connect your knowledge for you.
+              Upload images, notes, or documents and ask anything. Your AI
+              will search, connect, and reason across your knowledge for you.
             </p>
           </div>
 
