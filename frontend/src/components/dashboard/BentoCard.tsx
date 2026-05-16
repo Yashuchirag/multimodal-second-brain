@@ -40,9 +40,9 @@ export function BentoCard({
       style={{ gridColumn: `span ${colSpan}`, gridRow: `span ${rowSpan}` }}
       className={cn(
         'relative overflow-hidden rounded-2xl p-5',
-        'bg-glass-card backdrop-blur-glass border border-white/7',
+        'bg-glass-card backdrop-blur-glass border border-white/[0.13]',
         'transition-colors duration-200',
-        onClick && 'cursor-pointer hover:border-white/12',
+        onClick && 'cursor-pointer hover:border-white/[0.22]',
         className,
       )}
     >

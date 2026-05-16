@@ -18,9 +18,16 @@ When you reference specific uploads, be clear about which source you are drawing
 If the context does not contain enough information to answer fully, say so honestly."""
 
 
-async def generate_stream(message: str, context: str) -> AsyncGenerator[dict, None]:
+async def generate_stream(message: str, context: str, history: list[dict] = []) -> AsyncGenerator[dict, None]:
     """
     Stream a Groq response token by token using native async SSE.
+
+    Args:
+      message: The current user question.
+      context: Retrieved document context to prepend to the user turn.
+      history: Previous conversation turns loaded from the DB (role + content).
+               The last item is the user message we just inserted — it is
+               excluded here because we add it manually with context attached.
 
     Yields:
       {"type": "token", "data": "<text chunk>"}
@@ -28,18 +35,26 @@ async def generate_stream(message: str, context: str) -> AsyncGenerator[dict, No
       {"type": "error", "data": "<message>"}   — only on failure
     """
     try:
+        # Start with the system prompt
+        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+        # Replay prior turns, excluding the last item which is the user message
+        # we just saved — it will be appended below with context prepended.
+        for turn in history[:-1]:
+            messages.append({"role": turn["role"], "content": turn["content"]})
+
+        # Current user turn: context + question
+        messages.append({
+            "role": "user",
+            "content": (
+                f"Context from uploaded documents:\n{context}\n\n"
+                f"Question: {message}"
+            ),
+        })
+
         stream = await _client.chat.completions.create(
             model=settings.groq_model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {
-                    "role": "user",
-                    "content": (
-                        f"Context from uploaded documents:\n{context}\n\n"
-                        f"Question: {message}"
-                    ),
-                },
-            ],
+            messages=messages,
             stream=True,
         )
 

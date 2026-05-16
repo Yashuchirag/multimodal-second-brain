@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Brain } from 'lucide-react'
+import { Brain, SquarePen, Trash2 } from 'lucide-react'
 import { useChat } from '@/hooks/useChat'
 import { ChatBubble } from './ChatBubble'
 import { CommandBar } from '@/components/layout/CommandBar'
@@ -13,7 +13,7 @@ const SUGGESTED_PROMPTS = [
 ]
 
 export function ChatComponent() {
-  const { messages, isStreaming, sendMessage } = useChat()
+  const { messages, isStreaming, sendMessage, clearMessages, newChat } = useChat()
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -22,6 +22,44 @@ export function ChatComponent() {
 
   return (
     <div className="relative flex flex-col h-full">
+      {/* Top bar — only shown when there are messages */}
+      <AnimatePresence>
+        {messages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+            className="absolute top-4 right-6 z-20 flex items-center gap-2"
+          >
+            <button
+              onClick={newChat}
+              disabled={isStreaming}
+              title="New chat"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                         text-xs text-secondary hover:text-primary
+                         bg-white/[0.07] hover:bg-white/[0.12] border border-white/[0.14] hover:border-white/[0.24]
+                         transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <SquarePen size={12} />
+              New Chat
+            </button>
+            <button
+              onClick={clearMessages}
+              disabled={isStreaming}
+              title="Clear conversation"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                         text-xs text-secondary hover:text-red-400
+                         bg-white/[0.07] hover:bg-red-400/[0.10] border border-white/[0.14] hover:border-red-400/30
+                         transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Trash2 size={12} />
+              Clear
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Message list */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-32 flex flex-col gap-5">
         <AnimatePresence initial={false}>
@@ -37,7 +75,7 @@ export function ChatComponent() {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 260, damping: 22, delay: 0.05 }}
-                className="p-4 rounded-2xl bg-accent/10 border border-accent/20 text-accent"
+                className="p-4 rounded-2xl bg-accent/[0.18] border border-accent/30 text-accent"
               >
                 <Brain size={28} />
               </motion.div>
@@ -61,7 +99,7 @@ export function ChatComponent() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => sendMessage(prompt)}
                     className="px-4 py-3 rounded-xl text-left text-xs text-secondary
-                               bg-white/3 border border-white/8 hover:border-white/14
+                               bg-white/[0.07] border border-white/[0.14] hover:border-white/[0.24]
                                hover:text-primary transition-colors duration-150 leading-snug"
                   >
                     {prompt}

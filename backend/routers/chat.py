@@ -24,9 +24,38 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     The frontend useChat hook should handle each event type separately.
     """
 
+    # ── Save the user message before streaming begins ─────────────────────────
+    # Must happen outside event_generator so the row exists before we read
+    # history inside the generator (otherwise the current message would be
+    # missing from the history window on the very first load).
+    if request.session_id:
+        supabase.table("messages").insert({
+            "id": str(uuid.uuid4()),
+            "session_id": str(request.session_id),
+            "role": "user",
+            "content": request.message,
+            "citations": [],
+        }).execute()
+
     async def event_generator():
         try:
-            # ── Step 1: Retrieve relevant context via pgvector ─────────────────
+            # ── Step 1: Load conversation history ─────────────────────────────
+            # Fetch the last 10 rows (oldest-first). The final row is the user
+            # message we just inserted; generate_stream will skip it when
+            # replaying prior turns so it is not duplicated.
+            history: list[dict] = []
+            if request.session_id:
+                history_result = (
+                    supabase.table("messages")
+                    .select("role, content")
+                    .eq("session_id", str(request.session_id))
+                    .order("created_at", desc=False)
+                    .limit(10)
+                    .execute()
+                )
+                history = history_result.data or []
+
+            # ── Step 2: Retrieve relevant context via pgvector ─────────────────
             chunks = await vector_search(request.message, request.top_k)
 
             context_parts = []
@@ -48,13 +77,13 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
 
             context = "\n\n".join(context_parts) if context_parts else "No relevant documents found."
 
-            # ── Step 2: Emit citations before streaming starts ─────────────────
+            # ── Step 3: Emit citations before streaming starts ─────────────────
             yield f"data: {json.dumps({'type': 'citations', 'data': [c.model_dump() for c in citations]})}\n\n"
 
-            # ── Step 3: Stream Groq response token by token ───────────────────
+            # ── Step 4: Stream Groq response token by token ───────────────────
             full_content = ""
 
-            async for event in generate_stream(request.message, context):
+            async for event in generate_stream(request.message, context, history=history):
                 if event["type"] == "token":
                     full_content += event["data"]
                     yield f"data: {json.dumps(event)}\n\n"
@@ -64,10 +93,10 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
                 elif event["type"] == "done":
                     break
 
-            # ── Step 4: Emit done ──────────────────────────────────────────────
+            # ── Step 5: Emit done ──────────────────────────────────────────────
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
-            # ── Step 5: Persist message to DB if session_id provided ───────────
+            # ── Step 6: Persist assistant reply to DB if session_id provided ───
             if request.session_id:
                 supabase.table("messages").insert({
                     "id": str(uuid.uuid4()),

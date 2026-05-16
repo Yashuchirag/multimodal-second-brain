@@ -34,7 +34,7 @@ export function Sidebar({ activeView, onNavigate }: SidebarProps) {
       className={cn(
         'fixed left-0 top-0 h-full z-40',
         'flex flex-col items-start py-5 gap-2',
-        'bg-white/5 backdrop-blur-glass border-r border-white/7',
+        'bg-white/[0.07] backdrop-blur-glass border-r border-white/[0.12]',
         'overflow-hidden',
       )}
     >
@@ -74,7 +74,7 @@ export function Sidebar({ activeView, onNavigate }: SidebarProps) {
                 'transition-colors duration-150 text-left',
                 isActive
                   ? 'bg-accent/20 text-accent'
-                  : 'text-muted hover:text-secondary hover:bg-white/5'
+                  : 'text-secondary hover:text-primary hover:bg-white/[0.08]'
               )}
             >
               <span className="shrink-0">{item.icon}</span>
@@ -110,7 +110,7 @@ export function Sidebar({ activeView, onNavigate }: SidebarProps) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           title={isExpanded ? undefined : 'Settings'}
-          className="flex items-center gap-3 w-full h-10 rounded-xl px-2.5 text-muted hover:text-secondary hover:bg-white/5 transition-colors"
+          className="flex items-center gap-3 w-full h-10 rounded-xl px-2.5 text-secondary hover:text-primary hover:bg-white/[0.08] transition-colors"
         >
           <span className="shrink-0"><Settings size={18} /></span>
           <AnimatePresence>

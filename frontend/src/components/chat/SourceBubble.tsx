@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FileImage, FileText } from 'lucide-react'
 import { Citation } from '@/types'
-import { truncate } from '@/lib/utils'
-import { cn } from '@/lib/utils'
+import { cn, truncate } from '@/lib/utils'
 
 interface SourceBubbleProps {
   citation: Citation

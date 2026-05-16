@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, CheckCircle2, XCircle, FileImage, FileText } from 'lucide-react'
+import { Upload, CheckCircle2, XCircle, FileText } from 'lucide-react'
 import { useUpload } from '@/hooks/useUpload'
 import { UploadShimmerRow } from './UploadShimmer'
 import { cn } from '@/lib/utils'
@@ -30,46 +30,49 @@ export function UploadZone() {
 
   return (
     <div className="flex flex-col gap-5 p-6 max-w-2xl mx-auto">
-      {/* Drop zone */}
+      {/* Drop zone — motion wrapper for entrance animation, inner div owns dropzone props */}
       <motion.div
-        {...getRootProps()}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 240, damping: 26 }}
-        className={cn(
-          'relative flex flex-col items-center justify-center gap-4',
-          'h-48 rounded-2xl border-2 border-dashed cursor-pointer',
-          'transition-all duration-200',
-          isDragActive
-            ? 'border-accent bg-accent/8 scale-[1.01]'
-            : 'border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/5'
-        )}
       >
-        <input {...getInputProps()} />
-
-        <motion.div
-          animate={isDragActive ? { scale: 1.15, rotate: -6 } : { scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        <div
+          {...getRootProps()}
           className={cn(
-            'p-4 rounded-2xl',
-            isDragActive ? 'bg-accent/20' : 'bg-white/5'
+            'relative flex flex-col items-center justify-center gap-4',
+            'h-48 rounded-2xl border-2 border-dashed cursor-pointer',
+            'transition-all duration-200',
+            isDragActive
+              ? 'border-accent bg-accent/[0.12] scale-[1.01]'
+              : 'border-white/[0.16] bg-white/[0.04] hover:border-white/[0.28] hover:bg-white/[0.07]'
           )}
         >
-          <Upload size={24} className={isDragActive ? 'text-accent' : 'text-muted'} />
-        </motion.div>
+          <input {...getInputProps()} />
 
-        <div className="text-center">
-          <p className="text-sm font-medium text-secondary">
-            {isDragActive ? 'Drop to upload' : 'Drag & drop files here'}
-          </p>
-          <p className="text-xs text-muted mt-1">
-            Images (JPG, PNG, WebP) · PDF · Text (TXT, MD)
-          </p>
+          <motion.div
+            animate={isDragActive ? { scale: 1.15, rotate: -6 } : { scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            className={cn(
+              'p-4 rounded-2xl',
+              isDragActive ? 'bg-accent/25' : 'bg-white/[0.09]'
+            )}
+          >
+            <Upload size={24} className={isDragActive ? 'text-accent' : 'text-muted'} />
+          </motion.div>
+
+          <div className="text-center">
+            <p className="text-sm font-medium text-secondary">
+              {isDragActive ? 'Drop to upload' : 'Drag & drop files here'}
+            </p>
+            <p className="text-xs text-muted mt-1">
+              Images (JPG, PNG, WebP) · PDF · Text (TXT, MD)
+            </p>
+          </div>
+
+          <span className="text-xs px-3 py-1 rounded-full bg-white/[0.09] border border-white/[0.16] text-secondary">
+            or click to browse
+          </span>
         </div>
-
-        <span className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/8 text-muted">
-          or click to browse
-        </span>
       </motion.div>
 
       {/* Upload queue */}
@@ -96,13 +99,13 @@ export function UploadZone() {
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{    opacity: 0, x:  12 }}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/3 border border-white/7"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.07] border border-white/[0.14]"
                 >
                   {/* Thumbnail or icon */}
                   {item.preview
                     ? <img src={item.preview} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
                     : (
-                      <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-lg bg-white/[0.09] flex items-center justify-center shrink-0">
                         <FileText size={16} className="text-muted" />
                       </div>
                     )

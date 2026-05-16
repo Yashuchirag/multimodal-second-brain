@@ -63,7 +63,7 @@ export function RecentUploadsTile() {
         {isLoading && (
           <div className="flex-1 flex flex-col gap-2">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-10 rounded-lg bg-white/4 animate-pulse" />
+              <div key={i} className="h-10 rounded-lg bg-white/[0.08] animate-pulse" />
             ))}
           </div>
         )}
@@ -83,7 +83,7 @@ export function RecentUploadsTile() {
               <div
                 key={doc.id}
                 className="group flex items-center gap-3 px-3 py-2 rounded-xl
-                           bg-white/3 hover:bg-white/5 transition-colors"
+                           bg-white/[0.06] hover:bg-white/[0.10] transition-colors"
               >
                 {doc.file_type === 'image'
                   ? <FileImage size={15} className="text-accent shrink-0" />

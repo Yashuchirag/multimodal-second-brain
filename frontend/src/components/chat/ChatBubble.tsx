@@ -37,7 +37,7 @@ export function ChatBubble({ message }: ChatBubbleProps) {
       <div
         className={cn(
           'shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-1',
-          isUser ? 'bg-accent/20' : 'bg-white/6 border border-white/8'
+          isUser ? 'bg-accent/25' : 'bg-white/[0.10] border border-white/[0.16]'
         )}
       >
         {isUser
@@ -58,8 +58,8 @@ export function ChatBubble({ message }: ChatBubbleProps) {
           className={cn(
             'px-4 py-3 rounded-2xl',
             isUser
-              ? 'bg-accent/15 border border-accent/20 rounded-tr-sm'
-              : 'bg-white/5 border border-white/7 rounded-tl-sm'
+              ? 'bg-accent/20 border border-accent/30 rounded-tr-sm'
+              : 'bg-white/[0.09] border border-white/[0.14] rounded-tl-sm'
           )}
         >
           <StreamingText

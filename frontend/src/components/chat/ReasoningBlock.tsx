@@ -8,8 +8,8 @@ interface ReasoningBlockProps {
 }
 
 /**
- * Collapsible block showing Gemini's internal thinking before the final answer.
- * Collapsed by default — users can expand to see the reasoning chain.
+ * Collapsible block showing the LLM's reasoning chain before the final answer.
+ * Collapsed by default — users can expand to see the thinking process.
  */
 export function ReasoningBlock({ reasoning }: ReasoningBlockProps) {
   const [isOpen, setIsOpen] = useState(false)

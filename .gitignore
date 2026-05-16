@@ -3,6 +3,8 @@
 __pycache__/
 *.pyc
 *.pyo
+.claude-flow/
+.claude/
 .env
 # .env.example is intentionally committed — it's a safe template with no real secrets
 

@@ -17,6 +17,7 @@ interface ChatStore {
   finalizeMessage: (id: string) => void
   setStreaming: (value: boolean) => void
   clearMessages: () => void
+  setMessages: (messages: ChatMessage[]) => void
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
@@ -79,4 +80,6 @@ export const useChatStore = create<ChatStore>((set) => ({
   setStreaming: (value) => set({ isStreaming: value }),
 
   clearMessages: () => set({ messages: [], sessionId: null }),
+
+  setMessages: (messages) => set({ messages }),
 }))

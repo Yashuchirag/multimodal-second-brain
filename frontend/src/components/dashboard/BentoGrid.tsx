@@ -18,8 +18,8 @@ export function BentoGrid({ onNavigate }: BentoGridProps) {
       {/* Row 3: Quick action tiles */}
       <BentoCard colSpan={4} delay={0.16} onClick={() => onNavigate('chat')} glow>
         <div className="flex flex-col gap-3 h-full justify-between">
-          <div className="p-2 w-fit rounded-xl bg-violet-500/15">
-            <MessageSquare size={18} className="text-violet-400" />
+          <div className="p-2 w-fit rounded-xl bg-violet-500/25">
+            <MessageSquare size={18} className="text-violet-300" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-primary">Chat</h3>
@@ -30,8 +30,8 @@ export function BentoGrid({ onNavigate }: BentoGridProps) {
 
       <BentoCard colSpan={4} delay={0.22} onClick={() => onNavigate('upload')} glow>
         <div className="flex flex-col gap-3 h-full justify-between">
-          <div className="p-2 w-fit rounded-xl bg-emerald-500/15">
-            <Zap size={18} className="text-emerald-400" />
+          <div className="p-2 w-fit rounded-xl bg-emerald-500/25">
+            <Zap size={18} className="text-emerald-300" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-primary">Upload</h3>
@@ -42,8 +42,8 @@ export function BentoGrid({ onNavigate }: BentoGridProps) {
 
       <BentoCard colSpan={4} delay={0.28} onClick={() => onNavigate('search')} glow>
         <div className="flex flex-col gap-3 h-full justify-between">
-          <div className="p-2 w-fit rounded-xl bg-sky-500/15">
-            <Database size={18} className="text-sky-400" />
+          <div className="p-2 w-fit rounded-xl bg-sky-500/25">
+            <Database size={18} className="text-sky-300" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-primary">Search</h3>

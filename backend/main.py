@@ -4,7 +4,7 @@ from backend.routers import upload, search, chat
 
 app = FastAPI(
     title="Multimodal Second Brain API",
-    description="RAG-powered knowledge base with Gemini + pgvector",
+    description="RAG-powered knowledge base with Groq + Nomic + pgvector",
     version="0.1.0",
 )
 

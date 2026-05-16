@@ -62,7 +62,7 @@ export function InsightsTile() {
                 transition={{ delay: 0.3 + i * 0.08, type: 'spring', stiffness: 280, damping: 24 }}
                 whileHover={{ scale: 1.03, backgroundColor: 'rgba(255,255,255,0.07)' }}
                 className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs
-                           bg-white/4 border border-white/8 text-secondary cursor-default
+                           bg-white/[0.08] border border-white/[0.16] text-secondary cursor-default
                            transition-colors duration-150"
               >
                 <span>{chip.emoji}</span>

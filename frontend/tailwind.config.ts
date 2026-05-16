@@ -13,19 +13,19 @@ const config: Config = {
         background:  '#08080f',
         surface:     '#0f0f1a',
         'surface-2': '#161625',
-        border:      'rgba(255,255,255,0.07)',
+        border:      'rgba(255,255,255,0.12)',
 
         // Accent
         accent: {
           DEFAULT: '#6366f1',
           hover:   '#818cf8',
-          muted:   'rgba(99,102,241,0.15)',
+          muted:   'rgba(99,102,241,0.20)',
         },
 
         // Text hierarchy
         primary:   'rgba(255,255,255,0.92)',
-        secondary: 'rgba(255,255,255,0.55)',
-        muted:     'rgba(255,255,255,0.30)',
+        secondary: 'rgba(255,255,255,0.70)',
+        muted:     'rgba(255,255,255,0.48)',
       },
 
       // Glassmorphism helpers
@@ -34,8 +34,8 @@ const config: Config = {
         'glass-lg': '24px',
       },
       backgroundImage: {
-        'glass':     'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-        'glass-card':'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
+        'glass':     'linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%)',
+        'glass-card':'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
       },
 
       borderRadius: {

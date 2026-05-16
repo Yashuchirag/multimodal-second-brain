@@ -1,6 +1,6 @@
 import { useState, KeyboardEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, FileImage, FileText, Loader2, FileType } from 'lucide-react'
+import { Search, FileImage, FileText, Loader2 } from 'lucide-react'
 import { useSearch } from '@/hooks/useSearch'
 import { cn } from '@/lib/utils'
 
@@ -56,8 +56,8 @@ export function SearchView() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.05 }}
         className="flex items-center gap-3 px-4 py-3 rounded-2xl
-                   bg-white/5 border border-white/10 focus-within:border-accent/40
-                   focus-within:shadow-[0_0_0_1px_rgba(99,102,241,0.3)]
+                   bg-white/[0.08] border border-white/[0.17] focus-within:border-accent/50
+                   focus-within:shadow-[0_0_0_1px_rgba(99,102,241,0.35)]
                    transition-all duration-200"
       >
         <Search size={16} className="text-muted shrink-0" />
@@ -77,7 +77,7 @@ export function SearchView() {
             'shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
             query.trim() && !isSearching
               ? 'bg-accent text-white hover:bg-accent-hover'
-              : 'bg-white/5 text-muted cursor-not-allowed'
+              : 'bg-white/[0.09] text-secondary cursor-not-allowed'
           )}
         >
           {isSearching ? <Loader2 size={13} className="animate-spin" /> : 'Search'}
@@ -90,7 +90,7 @@ export function SearchView() {
           <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="flex flex-col gap-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 rounded-xl bg-white/3 animate-pulse" />
+              <div key={i} className="h-24 rounded-xl bg-white/[0.07] animate-pulse" />
             ))}
           </motion.div>
         )}
@@ -134,14 +134,14 @@ export function SearchView() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05, type: 'spring', stiffness: 280, damping: 26 }}
                   className="flex flex-col gap-3 p-4 rounded-xl
-                             bg-white/3 border border-white/7
-                             hover:bg-white/5 hover:border-white/12 transition-colors"
+                             bg-white/[0.06] border border-white/[0.13]
+                             hover:bg-white/[0.10] hover:border-white/[0.22] transition-colors"
                 >
                   {/* Row 1: icon + source info + score */}
                   <div className="flex items-center gap-2.5">
                     <div className={cn(
                       'w-7 h-7 rounded-lg flex items-center justify-center shrink-0',
-                      isImage ? 'bg-accent/15' : 'bg-white/6'
+                      isImage ? 'bg-accent/25' : 'bg-white/[0.11]'
                     )}>
                       {isImage
                         ? <FileImage size={14} className="text-accent" />
@@ -173,7 +173,7 @@ export function SearchView() {
                         'shrink-0 text-[11px] font-medium px-2 py-0.5 rounded-full',
                         score >= 80 ? 'bg-emerald-500/15 text-emerald-400'
                           : score >= 60 ? 'bg-accent/15 text-accent'
-                          : 'bg-white/6 text-muted'
+                          : 'bg-white/[0.11] text-secondary'
                       )}>
                         {score}%
                       </span>

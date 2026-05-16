@@ -59,9 +59,9 @@ export function CommandBar({
         transition={{ duration: 0.2 }}
         className={cn(
           'flex items-end gap-3 px-4 py-3 rounded-2xl',
-          'bg-white/8 backdrop-blur-glass-lg border',
+          'bg-white/[0.10] backdrop-blur-glass-lg border',
           'transition-colors duration-200',
-          isFocused || isStreaming ? 'border-accent/30' : 'border-white/10',
+          isFocused || isStreaming ? 'border-accent/40' : 'border-white/[0.16]',
         )}
       >
         {/* Attachment button */}
@@ -117,7 +117,7 @@ export function CommandBar({
                 'shrink-0 mb-0.5 w-7 h-7 rounded-lg flex items-center justify-center transition-all',
                 canSend
                   ? 'bg-accent text-white hover:bg-accent-hover shadow-[0_2px_8px_rgba(99,102,241,0.4)]'
-                  : 'bg-white/5 text-muted cursor-not-allowed'
+                  : 'bg-white/[0.09] text-secondary cursor-not-allowed'
               )}
             >
               <ArrowUp size={15} />

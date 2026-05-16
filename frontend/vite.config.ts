@@ -18,4 +18,17 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react':   ['react', 'react-dom'],
+          'vendor-motion':  ['framer-motion'],
+          'vendor-ui':      ['lucide-react', '@radix-ui/react-tooltip', '@radix-ui/react-collapsible'],
+          'vendor-data':    ['@tanstack/react-query', 'zustand'],
+          'vendor-markdown': ['react-markdown', 'remark-gfm'],
+        },
+      },
+    },
+  },
 })
