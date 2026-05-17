@@ -12,6 +12,10 @@ async def vector_search(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
 
     Returns a list of chunk dicts with keys:
       id, doc_id, content_type, text, image_url, image_description, metadata, score
+
+    No score threshold is applied here — the caller receives all top_k results
+    so the LLM always has the best available context when documents exist.
+    An empty return means the database has no chunks at all.
     """
     query_embedding = await embed_query(query)
 

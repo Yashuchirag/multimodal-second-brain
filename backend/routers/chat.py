@@ -56,15 +56,24 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
                 history = history_result.data or []
 
             # ── Step 2: Retrieve relevant context via pgvector ─────────────────
-            chunks = await vector_search(request.message, request.top_k)
+            # Build a contextual query so follow-up messages with pronouns
+            # ("it", "the document") still match the right chunks.
+            search_query = request.message
+            if history and len(history) > 1:
+                prior_user = [t["content"] for t in history[-5:-1] if t["role"] == "user"]
+                if prior_user:
+                    search_query = " ".join(prior_user[-2:]) + " " + request.message
+
+            chunks = await vector_search(search_query, request.top_k)
 
             context_parts = []
             citations: list[Citation] = []
 
             for i, chunk in enumerate(chunks):
-                # Build readable context for the prompt
                 chunk_text = chunk.get("text") or chunk.get("image_description") or ""
-                context_parts.append(f"[Source {i + 1}]: {chunk_text}")
+                filename = (chunk.get("metadata") or {}).get("filename", "")
+                label = f"[Source {i + 1}]" + (f" ({filename})" if filename else "")
+                context_parts.append(f"{label}: {chunk_text}")
 
                 citations.append(Citation(
                     id=chunk["id"],
@@ -75,7 +84,11 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
                     score=chunk.get("score"),
                 ))
 
-            context = "\n\n".join(context_parts) if context_parts else "No relevant documents found."
+            if context_parts:
+                context = "\n\n".join(context_parts)
+            else:
+                # No chunks means the database is empty — no documents uploaded yet.
+                context = "NO_DOCUMENTS_UPLOADED"
 
             # ── Step 3: Emit citations before streaming starts ─────────────────
             yield f"data: {json.dumps({'type': 'citations', 'data': [c.model_dump() for c in citations]})}\n\n"

@@ -6,10 +6,22 @@ from pypdf import PdfReader
 
 MIN_PAGE_CHARS = 80
 
+# Unicode ranges that commonly represent icon/glyph artifacts in extracted PDF text:
+#   U+E000–U+F8FF  Private Use Area (most PDF icon fonts live here)
+#   U+2300–U+23FF  Miscellaneous Technical (e.g. U+2322 ⌢, rendered from envelope icons)
+#   U+2600–U+27BF  Misc Symbols + Dingbats
+_GLYPH_RE = re.compile(
+    "[-"
+    "⌀-⏿"
+    "☀-➿]"
+)
+
 
 def _clean(text: str) -> str:
     # Strip C0/C1 control characters (keep \n and \t)
     text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', text)
+    # Strip PDF icon/glyph Unicode ranges that bleed into adjacent words
+    text = _GLYPH_RE.sub('', text)
     # Collapse runs of horizontal whitespace to a single space
     text = re.sub(r'[ \t]+', ' ', text)
     # Collapse 3+ blank lines to 2

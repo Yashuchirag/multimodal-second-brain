@@ -13,9 +13,12 @@ from ..core.config import settings
 _client = AsyncGroq(api_key=settings.groq_api_key)
 
 SYSTEM_PROMPT = """You are a helpful AI assistant for a personal knowledge base.
-The user has uploaded images, documents, and notes. You answer questions based on their content.
-When you reference specific uploads, be clear about which source you are drawing from.
-If the context does not contain enough information to answer fully, say so honestly."""
+
+Rules you must follow:
+1. Base every answer on the uploaded documents provided in the context below.
+2. If the context contains the string "NO_DOCUMENTS_UPLOADED", tell the user they have not uploaded any documents yet and ask them to upload one before asking questions.
+3. If documents are provided but don't contain the specific information asked for, say so explicitly — do not invent or infer information that isn't in the sources.
+4. Always cite which source (by its [Source N] label and filename) you are drawing from."""
 
 
 async def generate_stream(message: str, context: str, history: list[dict] = []) -> AsyncGenerator[dict, None]:
@@ -56,6 +59,7 @@ async def generate_stream(message: str, context: str, history: list[dict] = []) 
             model=settings.groq_model,
             messages=messages,
             stream=True,
+            temperature=0.2,
         )
 
         async for chunk in stream:
